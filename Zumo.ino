@@ -105,6 +105,10 @@ void loop()
           delay(TURN_DURATION);
           motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
         }
+        else if ((sensor_values[0] > QTR_THRESHOLD) && (sensor_values[5] > QTR_THRESHOLD))
+        {
+          Serial.println("Zumo has reached a corner");
+        }
         else
         {
           // otherwise, go straight
