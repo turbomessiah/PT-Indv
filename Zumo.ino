@@ -9,6 +9,8 @@
 char val; // Data received from the serial port
 int ledPin = 13; // Set the pin to digital I/O 13
 boolean ledState = LOW;
+const int trigPin = 2;
+const int echoPin = 4;
 
 #define QTR_THRESHOLD  250 // microseconds
 
@@ -38,7 +40,7 @@ void setup() {
   // put your setup code here, to run once:
   //motors.flipLeftMotor(true);
   //motors.flipRightMotor(true);
-  
+
   pinMode(ledPin, OUTPUT); // Set pin as OUTPUT
   reflectanceSensors.init();
   Serial.begin(9600);
@@ -51,7 +53,8 @@ void loop()
   if (Serial.available() > 0) { // If data is available to read,
     val = Serial.read(); // read it and store it in val
     Servo movingServo;
-    
+
+    long duration, inches, cm;
     
     if(val == 'w') //if we get a w
     {
@@ -72,6 +75,30 @@ void loop()
     if(val == 'x') //if we get a x
     {
       motors.setLeftSpeed(-1000); motors.setRightSpeed(-1000); delay(2); 
+    }
+    if(val == "o") //if we get a o
+    {
+      
+      pinMode(trigPin, OUTPUT);
+      digitalWrite(trigPin, LOW);
+      delayMicroseconds(2);
+      digitalWrite(trigPin, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigPin, LOW);
+
+      pinMode(echoPin, INPUT);
+      duration = pulseIn(echoPin, HIGH);
+      
+      inches = microsecondsToInches(duration);
+      cm = microsecondsToCentimeters(duration);
+
+      Serial.print(inches);
+      Serial.print("in, ");
+      Serial.print(cm);
+      Serial.print("cm");
+      Serial.println();
+
+      delay(100);
     }
     if(val == 'b') //if we get a b
     {
@@ -107,7 +134,25 @@ void loop()
         }
         else if ((sensor_values[0] > QTR_THRESHOLD) && (sensor_values[5] > QTR_THRESHOLD))
         {
+          motors.setLeftSpeed(0); motors.setRightSpeed(0);
           Serial.println("Zumo has reached a corner");
+          val = Serial.read();
+          if(val == 'e') //if we get an e
+          {
+            //nudge right function here
+            motors.setLeftSpeed(1000);
+            delay(TURN_DURATION);
+            motors.setLeftSpeed(0);
+            val = 'b';
+          }
+          else if(val == 'q')
+          {
+            //nudge left function here
+            motors.setRightSpeed(1000);
+            delay(TURN_DURATION);
+            motors.setRightSpeed(0);
+            val = 'b';
+          }
         }
         else
         {
@@ -141,6 +186,16 @@ void loop()
 //    Serial.println("Hello, world!"); //send back a hello world
 //    delay(50);
 //    }
+}
+
+long microsecondsToInches(long microseconds)
+{
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds)
+{
+  return microseconds / 29 /2;
 }
 
 void establishContact() {

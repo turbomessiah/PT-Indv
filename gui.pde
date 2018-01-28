@@ -48,22 +48,25 @@ public void button1_click5(GButton source, GEvent event) { //_CODE_:reverseButto
   println("reverseButton - GButton >> GEvent." + event + " @ " + millis());
 } //_CODE_:reverseButton:736358:
 
-public void button1_click6(GButton source, GEvent event) { //_CODE_:button1:610298:
-  println("button1 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:button1:610298:
+public void button1_click6(GButton source, GEvent event) { //_CODE_:CRLeft:610298:
+  myPort.write("z");
+  println("CRLeft button has been pressed @ " + millis());
+} //_CODE_:CRLeft:610298:
 
-public void button2_click2(GButton source, GEvent event) { //_CODE_:button2:502759:
-  println("button2 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:button2:502759:
+public void button2_click2(GButton source, GEvent event) { //_CODE_:CRRight:502759:
+  myPort.write("x");
+  println("CRRight button has been pressed @ " + millis());
+} //_CODE_:CRRight:502759:
 
 public void button3_click1(GButton source, GEvent event) { //_CODE_:borderDetectButton:445812:
   myPort.write("b");
   println("borderDetectButton has been pressed @ " + millis());
 } //_CODE_:borderDetectButton:445812:
 
-public void button4_click1(GButton source, GEvent event) { //_CODE_:button4:444321:
-  println("button4 - GButton >> GEvent." + event + " @ " + millis());
-} //_CODE_:button4:444321:
+public void button4_click1(GButton source, GEvent event) { //_CODE_:corridor:444321:
+  myPort.write("c");
+  println("corridor button has been pressed @ " + millis());
+} //_CODE_:corridor:444321:
 
 public void button3_click2(GButton source, GEvent event) { //_CODE_:nudgeRight:692196:
   myPort.write("e");
@@ -74,6 +77,16 @@ public void button3_click3(GButton source, GEvent event) { //_CODE_:button3:6269
   myPort.write("q");
   println("nudgeLeftButton has been pressed @ " + millis());
 } //_CODE_:button3:626983:
+
+public void button1_click7(GButton source, GEvent event) { //_CODE_:room:714172:
+  myPort.write("r");
+  println("room button has been pressed @ " + millis());
+} //_CODE_:room:714172:
+
+public void button2_click3(GButton source, GEvent event) { //_CODE_:objDetect:843001:
+  myPort.write("o");
+  println("objDetect button has been pressed @ " + millis());
+} //_CODE_:objDetect:843001:
 
 
 
@@ -120,22 +133,22 @@ public void createGUI(){
   reverseButton.setText("Reverse");
   reverseButton.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   reverseButton.addEventHandler(this, "button1_click5");
-  button1 = new GButton(this, 260, 120, 80, 30);
-  button1.setText("Face text");
-  button1.setLocalColorScheme(GCScheme.RED_SCHEME);
-  button1.addEventHandler(this, "button1_click6");
-  button2 = new GButton(this, 360, 120, 80, 30);
-  button2.setText("Face text");
-  button2.setLocalColorScheme(GCScheme.RED_SCHEME);
-  button2.addEventHandler(this, "button2_click2");
-  borderDetectButton = new GButton(this, 310, 80, 80, 30);
+  CRLeft = new GButton(this, 210, 150, 80, 30);
+  CRLeft.setText("Left");
+  CRLeft.setLocalColorScheme(GCScheme.RED_SCHEME);
+  CRLeft.addEventHandler(this, "button1_click6");
+  CRRight = new GButton(this, 310, 150, 80, 30);
+  CRRight.setText("Right");
+  CRRight.setLocalColorScheme(GCScheme.RED_SCHEME);
+  CRRight.addEventHandler(this, "button2_click2");
+  borderDetectButton = new GButton(this, 260, 110, 80, 30);
   borderDetectButton.setText("Border Detect");
   borderDetectButton.setLocalColorScheme(GCScheme.RED_SCHEME);
   borderDetectButton.addEventHandler(this, "button3_click1");
-  button4 = new GButton(this, 310, 160, 80, 30);
-  button4.setText("Face text");
-  button4.setLocalColorScheme(GCScheme.RED_SCHEME);
-  button4.addEventHandler(this, "button4_click1");
+  corridor = new GButton(this, 210, 190, 80, 30);
+  corridor.setText("Corridor");
+  corridor.setLocalColorScheme(GCScheme.RED_SCHEME);
+  corridor.addEventHandler(this, "button4_click1");
   nudgeRight = new GButton(this, 190, 70, 80, 30);
   nudgeRight.setText("Nudge Right");
   nudgeRight.setLocalColorScheme(GCScheme.GOLD_SCHEME);
@@ -144,6 +157,14 @@ public void createGUI(){
   button3.setText("Nudge Left");
   button3.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   button3.addEventHandler(this, "button3_click3");
+  room = new GButton(this, 310, 190, 80, 30);
+  room.setText("Room");
+  room.setLocalColorScheme(GCScheme.RED_SCHEME);
+  room.addEventHandler(this, "button1_click7");
+  objDetect = new GButton(this, 260, 230, 80, 30);
+  objDetect.setText("Object Detect");
+  objDetect.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+  objDetect.addEventHandler(this, "button2_click3");
 }
 
 // Variable declarations 
@@ -157,9 +178,11 @@ GLabel outputLabel;
 GTextArea outputTextArea; 
 GButton endButton; 
 GButton reverseButton; 
-GButton button1; 
-GButton button2; 
+GButton CRLeft; 
+GButton CRRight; 
 GButton borderDetectButton; 
-GButton button4; 
+GButton corridor; 
 GButton nudgeRight; 
 GButton button3; 
+GButton room; 
+GButton objDetect; 
