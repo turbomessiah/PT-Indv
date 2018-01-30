@@ -6,6 +6,74 @@
 #include <ZumoBuzzer.h>
 #include <Pushbutton.h>
 
+class Room {
+  private:
+  int roomID;
+  bool hasObject;
+  int corridorID;
+
+  public:
+  Room();
+  int getRoomID();
+  void setRoomID(int id);
+  bool objectInside();
+  void setObjectInside(bool inside);
+  int getCorridorID();
+  void setCorridorID(int id);
+};
+Room::Room() {}
+int Room::getRoomID() 
+{
+  return roomID;
+}
+void Room::setRoomID(int id) 
+{
+  roomID = id;
+}
+bool Room::objectInside()
+{
+  return hasObject;
+}
+void Room::setObjectInside(bool inside)
+{
+  hasObject = inside;
+}
+int Room::getCorridorID()
+{
+  return corridorID;
+}
+
+
+class Corridor {
+  private:
+  int corridorID;
+  bool subCorridor;
+
+  public:
+  Corridor();
+  int getCorridorID();
+  void setCorridorID(int id);
+  bool isSubCorridor();
+  void setSubCorridor(bool sub);
+};
+Corridor::Corridor() {}
+int Corridor::getCorridorID()
+{
+  return corridorID;
+}
+void Corridor::setCorridorID(int id)
+{
+  corridorID = id;
+}
+bool Corridor::isSubCorridor()
+{
+  return subCorridor;
+}
+void Corridor::setSubCorridor(bool sub)
+{
+  subCorridor = sub;
+}
+
 char val; // Data received from the serial port
 int ledPin = 13; // Set the pin to digital I/O 13
 boolean ledState = LOW;
@@ -44,7 +112,7 @@ void setup() {
   pinMode(ledPin, OUTPUT); // Set pin as OUTPUT
   reflectanceSensors.init();
   Serial.begin(9600);
-  establishContact();
+ // establishContact();
   reflectanceSensors.calibrate();
 }
 
@@ -54,7 +122,9 @@ void loop()
     val = Serial.read(); // read it and store it in val
     Servo movingServo;
 
-    long duration, inches, cm;
+    
+
+//    long duration, inches, cm;
     
     if(val == 'w') //if we get a w
     {
@@ -77,26 +147,41 @@ void loop()
       motors.setLeftSpeed(-1000); motors.setRightSpeed(-1000); delay(2); 
     }
     if(val == "o") //if we get a o
-    {
-      
+    {     
       pinMode(trigPin, OUTPUT);
       digitalWrite(trigPin, LOW);
       delayMicroseconds(2);
       digitalWrite(trigPin, HIGH);
       delayMicroseconds(10);
       digitalWrite(trigPin, LOW);
-
       pinMode(echoPin, INPUT);
-      duration = pulseIn(echoPin, HIGH);
-      
-      inches = microsecondsToInches(duration);
-      cm = microsecondsToCentimeters(duration);
 
-      Serial.print(inches);
-      Serial.print("in, ");
-      Serial.print(cm);
-      Serial.print("cm");
-      Serial.println();
+      for(int i = 0; i<15; i++){
+        if(sonar.ping_cm() < 20 && sonar.ping_cm() != 0)
+        {
+          delay(50);
+          Room{}.setObjectInside(true);
+          break;
+        }
+        if(Room{}.objectInside() == true)
+        {
+          Serial.println("Zumo has found an object");
+        }
+        else
+        {
+          Serial.println("Zumo has not found an object");
+        }
+      }
+      //duration = pulseIn(echoPin, HIGH);
+      
+//      inches = microsecondsToInches(duration);
+//      cm = microsecondsToCentimeters(duration);
+//
+//      Serial.print(inches);
+//      Serial.print("in, ");
+//      Serial.print(cm);
+//      Serial.print("cm");
+//      Serial.println();
 
       delay(100);
     }
@@ -105,7 +190,7 @@ void loop()
       while(true)
       {
         
-        if (val == 's')
+        if (Serial.read() == 's')
         {
           motors.setLeftSpeed(0); motors.setRightSpeed(0); delay(2);
           break;
@@ -114,7 +199,7 @@ void loop()
         Serial.println(String (sensor_values[0]));
         Serial.println(String (sensor_values[5]));
   
-        if (sensor_values[0] > QTR_THRESHOLD)
+        if (sensor_values[0] < QTR_THRESHOLD)
         {
           // if leftmost sensor detects line, reverse and turn to the right
           motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
@@ -123,7 +208,7 @@ void loop()
           delay(TURN_DURATION);
           motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
         }
-        else if (sensor_values[5] > QTR_THRESHOLD)
+        else if (sensor_values[5] < QTR_THRESHOLD)
         {
           // if rightmost sensor detects line, reverse and turn to the left
           motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
@@ -132,7 +217,7 @@ void loop()
           delay(TURN_DURATION);
           motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
         }
-        else if ((sensor_values[0] > QTR_THRESHOLD) && (sensor_values[5] > QTR_THRESHOLD))
+        else if ((sensor_values[0] < QTR_THRESHOLD) && (sensor_values[5] < QTR_THRESHOLD))
         {
           motors.setLeftSpeed(0); motors.setRightSpeed(0);
           Serial.println("Zumo has reached a corner");
@@ -143,7 +228,14 @@ void loop()
             motors.setLeftSpeed(1000);
             delay(TURN_DURATION);
             motors.setLeftSpeed(0);
-            val = 'b';
+            val = Serial.read();
+            if(val == 'f')
+            {
+              //Turn complete function here
+              Serial.println("Turn completed");
+              val = Serial.read();
+              val = 'b';
+            }
           }
           else if(val == 'q')
           {
@@ -151,7 +243,14 @@ void loop()
             motors.setRightSpeed(1000);
             delay(TURN_DURATION);
             motors.setRightSpeed(0);
-            val = 'b';
+            val = Serial.read();
+            if(val == 'f')
+            {
+              //Turn complete function here
+              Serial.println("Turn completed");
+              val = Serial.read();
+              val = 'b';
+            }
           }
         }
         else
@@ -180,6 +279,28 @@ void loop()
       delay(TURN_DURATION);
       motors.setRightSpeed(0);
     }
+    if(val == 'g')
+    {
+      //CRLeft function here
+    }
+    if(val == 'h')
+    {
+      //CRRight function here
+    }
+    if(val == 'r')
+    {
+      //Room log function here
+    }
+    if(val == 'c')
+    {
+      //Corridor log function here
+//      Corridor corridor;
+//      
+//      corridor.getCorridorID();
+//      corridor.setCorridorID(id) + 1;
+      
+      
+    }
     delay(100);
   } 
 //    else {
@@ -188,15 +309,15 @@ void loop()
 //    }
 }
 
-long microsecondsToInches(long microseconds)
-{
-  return microseconds / 74 / 2;
-}
+//long microsecondsToInches(long microseconds)
+//{
+//  return microseconds / 74 / 2;
+//}
 
-long microsecondsToCentimeters(long microseconds)
-{
-  return microseconds / 29 /2;
-}
+//long microsecondsToCentimeters(long microseconds)   
+//{
+//  return microseconds / 29 /2;
+//}
 
 void establishContact() {
   while (Serial.available() <= 0) {

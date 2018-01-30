@@ -88,6 +88,11 @@ public void button2_click3(GButton source, GEvent event) { //_CODE_:objDetect:84
   println("objDetect button has been pressed @ " + millis());
 } //_CODE_:objDetect:843001:
 
+public void button1_click8(GButton source, GEvent event) { //_CODE_:turnComplete:902094:
+  myPort.write("f");
+  println("turnComplete button has been pressed @ " + millis());
+} //_CODE_:turnComplete:902094:
+
 
 
 // Create all the GUI controls. 
@@ -145,7 +150,7 @@ public void createGUI(){
   borderDetectButton.setText("Border Detect");
   borderDetectButton.setLocalColorScheme(GCScheme.RED_SCHEME);
   borderDetectButton.addEventHandler(this, "button3_click1");
-  corridor = new GButton(this, 210, 190, 80, 30);
+  corridor = new GButton(this, 170, 190, 80, 30);
   corridor.setText("Corridor");
   corridor.setLocalColorScheme(GCScheme.RED_SCHEME);
   corridor.addEventHandler(this, "button4_click1");
@@ -157,7 +162,7 @@ public void createGUI(){
   button3.setText("Nudge Left");
   button3.setLocalColorScheme(GCScheme.GOLD_SCHEME);
   button3.addEventHandler(this, "button3_click3");
-  room = new GButton(this, 310, 190, 80, 30);
+  room = new GButton(this, 350, 190, 80, 30);
   room.setText("Room");
   room.setLocalColorScheme(GCScheme.RED_SCHEME);
   room.addEventHandler(this, "button1_click7");
@@ -165,6 +170,10 @@ public void createGUI(){
   objDetect.setText("Object Detect");
   objDetect.setLocalColorScheme(GCScheme.GREEN_SCHEME);
   objDetect.addEventHandler(this, "button2_click3");
+  turnComplete = new GButton(this, 260, 190, 80, 30);
+  turnComplete.setText("Turn Complete");
+  turnComplete.setLocalColorScheme(GCScheme.PURPLE_SCHEME);
+  turnComplete.addEventHandler(this, "button1_click8");
 }
 
 // Variable declarations 
@@ -186,3 +195,4 @@ GButton nudgeRight;
 GButton button3; 
 GButton room; 
 GButton objDetect; 
+GButton turnComplete; 
