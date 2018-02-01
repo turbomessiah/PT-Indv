@@ -80,13 +80,13 @@ boolean ledState = LOW;
 const int trigPin = 2;
 const int echoPin = 4;
 
-#define QTR_THRESHOLD  250 // microseconds
+#define QTR_THRESHOLD  200
 
 #define REVERSE_SPEED 200
 #define TURN_SPEED 200
-#define FORWARD_SPEED 400
+#define FORWARD_SPEED 250
 #define REVERSE_DURATION 200
-#define TURN_DURATION 300
+#define TURN_DURATION 200
 
 #define TRIGGER_PIN  12  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define ECHO_PIN     11  // Arduino pin tied to echo pin on the ultrasonic sensor.
@@ -148,13 +148,13 @@ void loop()
     }
     if(val == "o") //if we get a o
     {     
-      pinMode(trigPin, OUTPUT);
-      digitalWrite(trigPin, LOW);
-      delayMicroseconds(2);
-      digitalWrite(trigPin, HIGH);
-      delayMicroseconds(10);
-      digitalWrite(trigPin, LOW);
-      pinMode(echoPin, INPUT);
+//      pinMode(trigPin, OUTPUT);       code taken from the second source
+//      digitalWrite(trigPin, LOW);     mentioned in write up, has been taken
+//      delayMicroseconds(2);           out due to attempted use of 
+//      digitalWrite(trigPin, HIGH);    newPing library instead.
+//      delayMicroseconds(10);
+//      digitalWrite(trigPin, LOW);
+//      pinMode(echoPin, INPUT);
 
       for(int i = 0; i<15; i++){
         if(sonar.ping_cm() < 20 && sonar.ping_cm() != 0)
@@ -177,8 +177,8 @@ void loop()
 //      inches = microsecondsToInches(duration);
 //      cm = microsecondsToCentimeters(duration);
 //
-//      Serial.print(inches);
-//      Serial.print("in, ");
+//      Serial.print(inches);     code taken from second source in write up
+//      Serial.print("in, ");     was deleted to opt for attempt of newPing library
 //      Serial.print(cm);
 //      Serial.print("cm");
 //      Serial.println();
@@ -190,37 +190,15 @@ void loop()
       while(true)
       {
         
-        if (Serial.read() == 's')
-        {
-          motors.setLeftSpeed(0); motors.setRightSpeed(0); delay(2);
-          break;
-        }
         sensors.read(sensor_values);
         Serial.println(String (sensor_values[0]));
         Serial.println(String (sensor_values[5]));
-  
-        if (sensor_values[0] < QTR_THRESHOLD)
+        if ((sensor_values[0] > QTR_THRESHOLD) && (sensor_values[5] > QTR_THRESHOLD))
         {
-          // if leftmost sensor detects line, reverse and turn to the right
-          motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-          delay(REVERSE_DURATION);
-          motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
-          delay(TURN_DURATION);
-          motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-        }
-        else if (sensor_values[5] < QTR_THRESHOLD)
-        {
-          // if rightmost sensor detects line, reverse and turn to the left
-          motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
-          delay(REVERSE_DURATION);
-          motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
-          delay(TURN_DURATION);
-          motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
-        }
-        else if ((sensor_values[0] < QTR_THRESHOLD) && (sensor_values[5] < QTR_THRESHOLD))
-        {
+          //if both rightmost and leftmost sensors detect a line then zumo stops
           motors.setLeftSpeed(0); motors.setRightSpeed(0);
           Serial.println("Zumo has reached a corner");
+          
           val = Serial.read();
           if(val == 'e') //if we get an e
           {
@@ -233,11 +211,12 @@ void loop()
             {
               //Turn complete function here
               Serial.println("Turn completed");
-              val = Serial.read();
               val = 'b';
+              val = Serial.read();
+              
             }
           }
-          else if(val == 'q')
+          if(val == 'q')
           {
             //nudge left function here
             motors.setRightSpeed(1000);
@@ -248,17 +227,51 @@ void loop()
             {
               //Turn complete function here
               Serial.println("Turn completed");
-              val = Serial.read();
               val = 'b';
+              val = Serial.read();
+              
             }
           }
         }
+        else if (sensor_values[0] > QTR_THRESHOLD)
+        {
+          // if leftmost sensor detects line, reverse and turn to the right
+          motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+          delay(REVERSE_DURATION);
+          motors.setSpeeds(TURN_SPEED, -TURN_SPEED);
+          delay(TURN_DURATION);
+          motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+        }
+        else if (sensor_values[5] > QTR_THRESHOLD)
+        {
+          // if rightmost sensor detects line, reverse and turn to the left
+          motors.setSpeeds(-REVERSE_SPEED, -REVERSE_SPEED);
+          delay(REVERSE_DURATION);
+          motors.setSpeeds(-TURN_SPEED, TURN_SPEED);
+          delay(TURN_DURATION);
+          motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+        }
+        
         else
         {
           // otherwise, go straight
           motors.setSpeeds(FORWARD_SPEED, FORWARD_SPEED);
+          val = Serial.read();
+          if (val == 's')
+          {
+          motors.setLeftSpeed(0); motors.setRightSpeed(0); delay(2);
+          break;
+          }
         }
       }
+    }
+    if(val == 'f')
+    {
+      //Turn complete function here
+      Serial.println("Turn completed");
+      
+      val = 'b';
+      val = Serial.read();
     }
     // if sensor 0 and 5 are above the threshold then say it has reached a corner..
     if(val == 'k') //if we get a k

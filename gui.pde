@@ -49,12 +49,12 @@ public void button1_click5(GButton source, GEvent event) { //_CODE_:reverseButto
 } //_CODE_:reverseButton:736358:
 
 public void button1_click6(GButton source, GEvent event) { //_CODE_:CRLeft:610298:
-  myPort.write("z");
+  myPort.write("g");
   println("CRLeft button has been pressed @ " + millis());
 } //_CODE_:CRLeft:610298:
 
 public void button2_click2(GButton source, GEvent event) { //_CODE_:CRRight:502759:
-  myPort.write("x");
+  myPort.write("h");
   println("CRRight button has been pressed @ " + millis());
 } //_CODE_:CRRight:502759:
 
